@@ -23,7 +23,37 @@ console.log('host: ' + syncURL);
 
 let dbPromise = null;
 
+const dbConnectSubscribers = [];
+
+export const onDbConnect = fn => {
+    dbConnectSubscribers.push(fn);
+}
+
+const dbConnectingSubscribers = [];
+
+export const onDbConnecting = fn => {
+    dbConnectingSubscribers.push(fn);
+}
+
+const dbDestroySubscribers = [];
+
+export const onDbDestroy = fn => {
+    dbDestroySubscribers.push(fn);
+}
+
+const dbDestroyingSubscribers = [];
+
+export const onDbDestroying = fn => {
+    dbDestroyingSubscribers.push(fn);
+}
+
 const _create = async () => {
+    dbConnectingSubscribers.forEach(fn => {
+        if (typeof fn === 'function') {
+            fn();
+        }
+    });
+
     console.log('DatabaseService: creating database..');
     const db = await RxDB.create({name: 'heroesreactdb', adapter: 'idb', password: 'myLongAndStupidPassword'});
     console.log('DatabaseService: created database');
@@ -58,6 +88,12 @@ const _create = async () => {
         remote: syncURL + colName + '/'
     }));
 
+    dbConnectSubscribers.forEach(fn => {
+        if (typeof fn === 'function') {
+            fn();
+        }
+    });
+
     return db;
 };
 
@@ -65,4 +101,31 @@ export const get = () => {
     if (!dbPromise)
         dbPromise = _create();
     return dbPromise;
+}
+
+export const destroy = () => {
+    return new Promise((resolve, reject) => {
+        if (!dbPromise) {
+            reject(new Error('You are not connected to a db.'));
+        } else {
+            dbDestroyingSubscribers.forEach(fn => {
+                if (typeof fn === 'function') {
+                    fn();
+                }
+            });
+
+            dbPromise
+                .then(db => {
+                    return db.destroy()
+                })
+                .then(() => {
+                    dbPromise = null;
+                    dbDestroySubscribers.forEach(fn => {
+                        if (typeof fn === 'function') {
+                            fn();
+                        }
+                    });                    
+                });
+        }
+    });
 }
