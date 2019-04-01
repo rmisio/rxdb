@@ -1,16 +1,11 @@
 # RxDB React example
-This is an example usage of RxDB with [Create React App](https://github.com/facebookincubator/create-react-app). It implements a simple heroes-list which can be filled by the user.
+This repos is the tweaked React example from the main repo reproduces this bug:
+https://github.com/pubkey/rxdb/issues/939
 
-# Try it out
-1. clone the whole [RxDB-repo](https://github.com/pubkey/rxdb)
-2. go into project `cd rxdb`
-3. run `npm install`
-4. go to this folder `cd examples/react`
-5. run `npm install`
-6. run `npm start`
-7. Open [http://127.0.0.1:8888/](http://127.0.0.1:8888/) **IMPORTANT: do not use localhost**
+Instructions:
+- `git clone` this repo
+- `npm install` in the root
+- `cd examples/react`
+- `npm install`
 
-
-# Screenshot
-
-![Screenshot](docfiles/screenshot.png?raw=true)
+At the bottom of the screen will be a `Disconnect fromm Db` button. Click it to disconnect. Now you will have a `Connect to Db` button. Click it and then in your JS console notice the exception noted in the bug.
