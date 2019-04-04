@@ -39,11 +39,8 @@ const collections = [
             },
             'required': ['color']
         },
-        sync: true,
     }
 ];
-
-const syncUrl = `http://${window.location.hostname}:5984`;
 
 describe('encrypt-bug-917.test.js', () => {
     it('should fail because it reproduces the bug', async () => {
@@ -71,50 +68,22 @@ describe('encrypt-bug-917.test.js', () => {
                 )
             );
 
-            // sync
-            collections
-              .filter(col => col.sync)
-              .map(col => col.name)
-              .map(colName => {
-                  return db[colName].sync({
-                      remote: `${syncUrl}/${dbName}/`,
-                  });
-              });
-
             // insert a document
-            console.log('pre-timeout');
-
             const record = await db.heroes.findOne().exec();
 
             if (!record) {
-                console.log('no record up in here');
-                await (new Promise(async resolve => {
-                    console.log('hey');
-                    await db.heroes.upsert({
-                        name: 'big-billy',
-                        color: 'arugula',
-                    });
-                    console.log('ait');
-
-                    setTimeout(() => {
-                        console.log('we resolve yo');
-                        resolve();
-                    }, 2000);
-                }));
+                await db.heroes.upsert({
+                    name: 'big-billy',
+                    color: 'arugula',
+                });
             }
 
-            console.log('hey there');
-
-            // assert.equal(myDocument.age, 56);
-            // console.log('I\'m created!', (new Date()));
         };
 
         await connectDb();
 
-        await db.destroy();
-
         // will throw exception:
-        await connectDb();
+        await db.heroes.findOne().exec();
 
         // clean up afterwards
         db.destroy();
