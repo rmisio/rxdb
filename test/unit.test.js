@@ -1,6 +1,6 @@
 const nodeAndBrowser = [
-    '../test_tmp/unit/encrypt-bug-917.test.js',
     // '../test_tmp/unit/relogin-bug-939.test.js',
+    '../test_tmp/unit/find-encrypted-field.test.js',
 ];
 
 // const last = [
