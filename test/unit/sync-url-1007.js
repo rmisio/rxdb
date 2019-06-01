@@ -28,71 +28,59 @@ const collections = [
                     'primary': true
                 },
                 'color': {
-                    'type': 'string'
-                }
+                    'type': 'string',
+                    encrypted: true
+                },
             },
             'required': ['color']
-        }
+        },
     }
 ];
 
-describe('relogin-bug-939.test.js', () => {
+describe('encrypt-bug-917.test.js', () => {
     it('should fail because it reproduces the bug', async () => {
         RxDB.QueryChangeDetector.enableDebugging();
         RxDB.plugin(require('pouchdb-adapter-idb'));
         RxDB.plugin(require('pouchdb-adapter-http'));
 
         // generate a random database-name
-        // const name = util.randomCouchString(10);
         let db;
 
-        const connectDb = async () => {
-            const meName = util.randomCouchString(10);
-
+        const connectDb = async name => {
             // create a database
             db = await RxDB.create({
-                // name: 'heroesreactdb',
-                name: meName,
+                name,
                 adapter: 'idb',
                 password: 'myLongAndStupidPassword'
             });
 
-            const collections = [];
-
-            // create a collection
-            // const collection = await db.collection({
-            //     name: 'mycollection',
-            //     // schema: mySchema
-            //     schema: require('./Schema.js').default,
-            // });
             await Promise.all(
                 collections.map(
-                    async colData => {
-                        const myCol = await db.collection(
-                            JSON.parse(JSON.stringify(colData))
-                        );
-                        collections.push(myCol);
-                    }
+                    colData => db.collection(
+                        JSON.parse(JSON.stringify(colData))
+                    )
                 )
             );
 
             // insert a document
-            await collections[0].insert({
-                name: meName,
-                color: 'orange billy',
-            });
+            const record = await db.heroes.findOne().exec();
 
-            // assert.equal(myDocument.age, 56);
-            // console.log('I\'m created!', (new Date()));
+            if (!record) {
+                await db.heroes.upsert({
+                    name: 'big-billy',
+                    color: 'arugula',
+                });
+            }
 
             return db;
         };
 
-        const db1 = await connectDb();
-        const db2 = await connectDb();
+        await connectDb();
 
-        console.log('silly billy');
-        window.silly = db1;
-        window.silly = db2;
+        // will throw exception:
+        await db.heroes.findOne().exec();
+
+        // clean up afterwards
+        db.destroy();
     });
 });
