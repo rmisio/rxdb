@@ -1,5 +1,5 @@
 const nodeAndBrowser = [
-    '../test_tmp/unit/encrypt-bug-917.test.js',
+    '../test_tmp/unit/bulkdocs-change-event.test.js',
     // '../test_tmp/unit/relogin-bug-939.test.js',
 ];
 
